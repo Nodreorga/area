@@ -9,7 +9,7 @@ on:
 jobs:
 
   verif_repo:
-    if: $${ github.repository }} != ${{ VARS.REPO_TARGET }}
+    if: ${{ github.repository != vars.REPO_TARGET }}
     runs-on: ubuntu-latest
     steps:
       - name: the repository is correct

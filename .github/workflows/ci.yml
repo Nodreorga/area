@@ -1,0 +1,68 @@
+name: Area_CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  verif_repo:
+    if: github.repository != ${{ VARS.REPO_TARGET }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: the repository is correct
+        run: exit 0
+
+  # check_build:
+    # needs: verif_repo
+    # runs-on: ubuntu-latest
+    # steps:
+      # - name: copie the repo
+        # uses: actions/checkout@v4
+        # with:
+          # fetch-depth: 0
+
+      # - name: verif simple compilation
+        # run: docker compose up --build
+        # timeout-minutes: 2
+
+  # unit_tests:
+  #   needs: verif_repo
+  #   runs-on: ubuntu-latest
+  #   image: node:26
+
+  #   steps:
+  #     - name: copie the repo
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+
+  #     - name: move to back
+  #       run: cd back
+
+  #     - name: install dependencies
+  #       run: npm ci
+
+  #     - name: run units test
+  #       run: npm run test
+  #       timeout-minutes: 2
+
+  push_to_mirror:
+    needs: verif_repo
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: copie the repo
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+
+        - name: duplicate into target repository
+          uses: pixta-dev/repository-mirroring-action@v1
+          with:
+            target_repo_url:
+              ${{ VARS.TARGET_URL }}
+            ssh_private_key:
+              ${{ secrets.GIT_SSH_PRIVATE_KEY }}
